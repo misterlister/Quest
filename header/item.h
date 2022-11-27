@@ -36,7 +36,7 @@ class Item {
 
 class ItemGroup {
     private:
-        vector <Item> list;
+        vector<Item>list;
     public:
         ItemGroup(){}
         ~ItemGroup(){}
@@ -45,6 +45,7 @@ class ItemGroup {
         void addItem(Item toAdd);
         bool removeItem(int key);
         void printGroup();
+        friend class charSheet;
 };
 
 

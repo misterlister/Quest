@@ -5,6 +5,7 @@
 #define INVSIZE 20
 #define ERR "Error: "
 #define STATERR " must be greater than 0"
+#define INVALID "That was not a valid choice, please try again"
 #define TN "toughness"
 #define NB "nimbleness"
 #define IT "intellect"

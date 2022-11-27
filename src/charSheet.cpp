@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cctype>
+#include <vector>
 #include "../header/macros.h"
 #include "../header/charSheet.h"
 #include "../header/item.h"
@@ -11,6 +12,12 @@
 #include "../header/objectlist.h"
 
 using namespace std;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::vector;
+using std::end;
+using std::begin;
 
 
 charSheet::charSheet() {
@@ -231,7 +238,6 @@ void charSheet::changeEquip() {
     if(checkEquip(FINGER)) {
         finger = true;
     }
-    int number = 1;
     system("clear");
     if(hold|body|head|feet|hands|finger) {
         bool valid = false;
@@ -246,40 +252,38 @@ void charSheet::changeEquip() {
             char choice = '0';
             cin >> choice;
             choice = toupper(choice);
-            cin >> choice;
-            choice = toupper(choice);
             switch (choice) {
-                case E:
+                case 'E':
                     if(hold) {
                         valid = true;
                         equipItem(HOLD1);
                         break;
                     }
-                case B:
+                case 'B':
                     if(body) {
                         valid = true;
                         equipItem(BODY);
                         break;
                     }
-                case H:
+                case 'H':
                     if(head) {
                         valid = true;
                         equipItem(HEAD);
                         break;
                     }
-                case S:
+                case 'S':
                     if(feet) {
                         valid = true;
                         equipItem(FEET);
                         break;
                     }
-                case G:
+                case 'G':
                     if(hands) {
                         valid = true;
                         equipItem(HANDS);
                         break;
                     }
-                case R:
+                case 'R':
                     if(finger) {
                         valid = true;
                         equipItem(FINGER);
@@ -299,8 +303,9 @@ void charSheet::changeEquip() {
 }
 
 bool charSheet::checkEquip(int slot) {
-    for(vector<Item>::iterator it = inventory.begin(); it != inventory.end(); it++) {
-        if(it->equipSlot == slot) {
+    for(vector<Item>::iterator it = inventory.list.begin(); \
+    it != inventory.list.end(); it++) {
+        if(it->eqSlot() == slot) {
             return true;
         }
     }
@@ -309,42 +314,303 @@ bool charSheet::checkEquip(int slot) {
 
 void charSheet::equipItem(int slot) {
     system("clear");
-    vector<Item>::iterator it = inventory.begin();
-    if(slot == 1) {
-        if(rHand == NULL) {
+    vector<Item>::iterator it = inventory.list.begin();
+    if(slot == HOLD1) { /////// we want to equip a handheld item ///////
+        if(rHand == NULL) { 
             cout << "You hold nothing in your right hand" << endl;
         } else if (rHand == lHand) {
-            cout << "You hold " << rHand.iName() << " in both hands" << endl; 
+            cout << "You hold " << rHand->iName() << " in both hands" << endl; 
         } else {
-            cout << "You hold " << rHand.iName() << " in your right hand" << endl;
+            cout << "You hold " << rHand->iName() << " in your right hand" << endl;
         }
         if(lHand == NULL) {
             cout << "You hold nothing in your left hand" << endl;
         } else if (lHand != rHand) {
-            cout << "You hold " << lHand.iName() << " in your left hand" << endl;
+            cout << "You hold " << lHand->iName() << " in your left hand" << endl;
         }
         cout << "You may equip:" << endl << endl;
-        for(it; it != inventory.end(); it++) {
-            if(it->eqSlot() == 1 | it->eqSlot() == 2) {
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == HOLD1 | it->eqSlot() == HOLD2) { //print all holdable items
                 cout << it->iName();
-                if(it->eqSlot() == 1) {
+                if(it->eqSlot() == HOLD1) {
                     cout << " in one hand" << endl;
                 }
-                if(it->eqSlot() == 2) {
+                if(it->eqSlot() == HOLD2) {
                     cout << " in both hands" << endl;
                 }
             }
         }
         cout << endl;
-        it = inventory.begin();
+        it = inventory.list.begin();
         char entry = '0';
         cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
-        for(it; it != inventory.end(); it++) {
-            
-        }    
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == HOLD1 | it->eqSlot() == HOLD2) { //each holdable item
+                cout << it->iName() << "?" << endl;
+                entry = yesNo();
+                if(toupper(entry) == 'Y') {
+                    if(it->eqSlot() == HOLD2) { //the item is 2-handed
+                        lHand = &*it;
+                        rHand = &*it;
+                        cout << "You are now holding " << lHand->iName() << " in";
+                        cout << " both hands" << endl;
+                        return;
+                    } else {
+                        cout << "In which hand do you want to hold " << it->iName();
+                        cout << "?" << endl << "1 - Right hand" << endl;
+                        cout << "2 - Left hand" << endl;
+                        int choice = makeChoice(2);
+                        if(choice == 1) { //hold it in right hand
+                            rHand = &*it;
+                            cout << "You are now holding " << rHand->iName();
+                            cout << " in your right hand" << endl;
+                            return;
+                        } else { //hold it in left hand
+                            lHand = &*it;
+                            cout << "You are now holding " << lHand->iName();
+                            cout << " in your left hand" << endl;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        char input = '0';
+        if(rHand != NULL) {
+            cout << "Would you like to stow your " << rHand->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                rHand = NULL;
+            }
+        }
+        if(lHand != NULL) {
+            if(lHand->eqSlot() != HOLD2) {
+                cout << "Would you like to stow your " << lHand->iName();
+                cout << "? (Y/N)" << endl;
+                input = yesNo();
+                if(input == 'Y') {
+                    lHand = NULL;
+                }
+            }
+        }
+        return;
     }
-    
-
+    if(slot == BODY) { /////// we want to equip a body item ///////
+        if(body == NULL) {
+            cout << "You wear nothing but your ragged clothing" << endl;
+        } else {
+            cout << "You wear " << body->iName() << " on your body" << endl;
+        }
+        cout << "You may equip:" << endl << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == BODY) { //print all body-wearable items
+                cout << it->iName() << endl;
+            }
+        }
+        cout << endl;
+        it = inventory.list.begin();
+        char entry = '0';
+        cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == BODY) { //each body-wearable item
+                cout << it->iName() << "?" << endl;
+                entry = yesNo();
+                if(toupper(entry) == 'Y') {
+                        body = &*it;
+                        cout << "You are now wearing " << body->iName() << endl;
+                        return;
+                }
+            }
+        }
+        char input = '0';
+        if(body != NULL) {
+            cout << "Would you like to remove your " << body->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                body = NULL;
+            }
+        }
+        return;
+    }
+    if(slot == HEAD) { /////// we want to equip a head item ///////
+        if(head == NULL) {
+            cout << "You wear nothing upon your head" << endl;
+        } else {
+            cout << "You wear a " << head->iName() << " on your head" << endl;
+        }
+        cout << "You may equip:" << endl << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == HEAD) { //print all head-wearable items
+                cout << it->iName() << endl;
+            }
+        }
+        cout << endl;
+        it = inventory.list.begin();
+        char entry = '0';
+        cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == HEAD) { //each head-wearable item
+                cout << it->iName() << "?" << endl;
+                entry = yesNo();
+                if(toupper(entry) == 'Y') {
+                        head = &*it;
+                        cout << "You are now wearing a " << head->iName() << endl;
+                        return;
+                }
+            }
+        }
+        char input = '0';
+        if(head != NULL) {
+            cout << "Would you like to remove your " << head->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                head = NULL;
+            }
+        }
+        return;
+    }
+    if(slot == FEET) { /////// we want to equip a feet item ///////
+        if(feet == NULL) {
+            cout << "Your feet are bare" << endl;
+        } else {
+            cout << "You wear " << feet->iName() << " on your feet" << endl;
+        }
+        cout << "You may equip:" << endl << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == FEET) { //print all feet-wearable items
+                cout << it->iName() << endl;
+            }
+        }
+        cout << endl;
+        it = inventory.list.begin();
+        char entry = '0';
+        cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == FEET) { //each feet-wearable item
+                cout << it->iName() << "?" << endl;
+                entry = yesNo();
+                if(toupper(entry) == 'Y') {
+                        feet = &*it;
+                        cout << "You are now wearing a " << feet->iName() << endl;
+                        return;
+                }
+            }
+        }
+        char input = '0';
+        if(feet != NULL) {
+            cout << "Would you like to remove your " << feet->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                feet = NULL;
+            }
+        }
+        return;
+    }
+    if(slot == HANDS) { /////// we want to equip a hands item ///////
+        if(hands == NULL) {
+            cout << "You wear nothing upon your hands" << endl;
+        } else {
+            cout << "You wear " << hands->iName() << " on your hands" << endl;
+        }
+        cout << "You may equip:" << endl << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == HANDS) { //print all hands-wearable items
+                cout << it->iName() << endl;
+            }
+        }
+        cout << endl;
+        it = inventory.list.begin();
+        char entry = '0';
+        cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == HANDS) { //each hands-wearable item
+                cout << it->iName() << "?" << endl;
+                entry = yesNo();
+                if(toupper(entry) == 'Y') {
+                        hands = &*it;
+                        cout << "You are now wearing " << hands->iName() << endl;
+                        return;
+                }
+            }
+        }
+        char input = '0';
+        if(hands != NULL) {
+            cout << "Would you like to remove your " << hands->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                hands = NULL;
+            }
+        }
+        return;
+    }
+    if(slot == FINGER) { /////// we want to equip a finger item ///////
+        if(rFinger == NULL) { 
+            cout << "You have nothing on your right finger" << endl;
+        } else {
+            cout << "You have " << rFinger->iName() << " on your right finger" << endl;
+        }
+        if(lFinger == NULL) {
+            cout << "You hold nothing on your left finger" << endl;
+        } else {
+            cout << "You have " << lFinger->iName() << " on your left finger" << endl;
+        }
+        cout << "You may equip:" << endl << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == FINGER) { //print all finger items
+                cout << it->iName();
+            }
+        }
+        cout << endl;
+        it = inventory.list.begin();
+        char entry = '0';
+        cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
+        for(; it != inventory.list.end(); it++) {
+            if(it->eqSlot() == FINGER) { //each finger item
+                cout << it->iName() << "?" << endl;
+                entry = yesNo();
+                if(toupper(entry) == 'Y') {
+                    cout << "On which hand do you want to wear " << it->iName();
+                    cout << "?" << endl << "1 - Right hand" << endl;
+                    cout << "2 - Left hand" << endl;
+                    int choice = makeChoice(2);
+                    if(choice == 1) { //hold it in right hand
+                        rFinger = &*it;
+                        cout << "You are now wearing " << rFinger->iName();
+                        cout << " on your right hand" << endl;
+                        return;
+                    } else { //hold it in left hand
+                        lFinger = &*it;
+                        cout << "You are now wearing " << lFinger->iName();
+                        cout << " on your left hand" << endl;
+                        return;
+                    }
+                }
+            }
+        }
+        char input = '0';
+        if(rFinger != NULL) {
+            cout << "Would you like to remove your " << rFinger->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                rFinger = NULL;
+            }
+        }
+        if(lFinger != NULL) {
+            cout << "Would you like to remove your " << lFinger->iName();
+            cout << "? (Y/N)" << endl;
+            input = yesNo();
+            if(input == 'Y') {
+                lFinger = NULL;
+            }
+        }
+        return;
+    }
 }
 
 void makeCharacter(charSheet &playerC)
@@ -423,6 +689,7 @@ void resetE(int &number, bool &confirm)
 
 void printSheet(charSheet playerC)
 {
+    system("clear");
     cout << "Your name is " << playerC.getName() << endl;
     cout << endl;
     if (((playerC.getCurHP()*10)/playerC.getMaxHP()) == 10) {
@@ -459,15 +726,6 @@ void printSheet(charSheet playerC)
        cout << "Your intelligence is unremarkable, neither great nor poor" << endl;
     }
     cout << endl;
-    if(playerC.numArrows() != 0) {
-       cout << "a quiver holding " << playerC.numArrows() << " arrows" << endl;
-    }
-    cout << endl;
-    if(playerC.getCP() == 0) {
-       cout << "You have not a copper to your name" << endl << endl;
-    } else {
-       cout << "Your coinpurse contains " << playerC.getCP() << " copper coins" << endl << endl;
-    } 
 }
 
 void startingItems(charSheet &playerC)

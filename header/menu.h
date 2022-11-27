@@ -6,7 +6,10 @@
 #include "../header/charSheet.h"
 
 int makeChoice(int numCh);
-int menu(charSheet playerC)
+char yesNo();
+void menu(charSheet playerC);
+void press_enter();
+
 
 
 #endif //QUEST_MENU_H

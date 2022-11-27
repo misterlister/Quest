@@ -23,7 +23,7 @@ int main()
    charSheet player;
    makeCharacter(player);
    system("clear");
-   printSheet(player);
+   menu(player);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

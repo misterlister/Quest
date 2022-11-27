@@ -25,6 +25,15 @@ class charSheet {
         int arrows;
         int CP;
         ItemGroup inventory;
+        Item* lHand;
+        Item* rHand;
+        Item* body;
+        Item* head;
+        Item* feet;
+        Item* hands;
+        Item* lFinger;
+        Item* rFinger;
+
     public:
         charSheet();
         ~charSheet(){}
@@ -54,6 +63,9 @@ class charSheet {
         bool changeArrow(int modifier);
         int getCP();
         bool changeCP(int toAdd);
+        void changeEquip();
+        bool checkEquip(int slot);
+        void equipItem(int slot);
 };
 
 void makeCharacter(charSheet &playerC);
