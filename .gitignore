@@ -1,3 +1,4 @@
 /save
 /obj
 .vscode
+*.DS_Store
