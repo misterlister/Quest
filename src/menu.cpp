@@ -1,13 +1,37 @@
 
 #include <iostream>
 #include <cctype>
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <filesystem>
+#include <regex>
 #include "../header/macros.h"
 #include "../header/charSheet.h"
 #include "../header/item.h"
 #include "../header/menu.h"
 #include "../header/objectlist.h"
+#include "../header/worldState.h"
+#include "../header/files.h"
 
-using namespace std;
+
+
+
+using std::cout;
+using std::cin;
+using std::endl;
+using std::cerr;
+using std::filesystem::exists;
+using std::filesystem::create_directory;
+using std::filesystem::path;
+using std::filesystem::current_path;
+using std::filesystem::is_regular_file;
+using std::filesystem::directory_iterator;
+using std::filesystem::is_empty;
+using std::ofstream;
+using std::to_string;
+using std::regex;
+using std::regex_replace;
 
 
 
@@ -45,17 +69,20 @@ char yesNo() {
     return input;
 }
 
-void menu(charSheet playerC) {
+bool menu(charSheet playerC, WorldState wState) {
     bool done = false;
+    bool quit = false;
     while(!done) {
         system("clear");
-        cout << "What would you like to do?" << endl;
-        cout << "1. Take stock of my condition" << endl;
-        cout << "2. Examine my possessions" << endl;
-        cout << "3. Change what I am holding or wearing" << endl;
-        cout << "4. Reflect, and save a memory of my progress" << endl;
-        cout << "5. Resume my travels" << endl;
-        int itemChoice = makeChoice(5);
+        cout << "What would you like to do?" << endl
+             << "1. Take stock of my condition" << endl
+             << "2. Examine my possessions" << endl
+             << "3. Change what I am holding or wearing" << endl
+             << "4. Reflect, and save a memory of my progress" << endl
+             << "5. End my travels for now" << endl
+             << "6. Resume my travels" << endl;
+        int itemChoice = makeChoice(6);
+        int endChoice = 0;
         switch (itemChoice) {
             case 1:
                 printSheet(playerC);
@@ -64,13 +91,13 @@ void menu(charSheet playerC) {
                 break;
             case 2:
                 system("clear");
-                if (playerC.possessions() == 0) {
+                if (playerC.possessionNum() == 0) {
                     cout << "You have no worldly possessions to speak of" << endl;
                 } else {
                     cout << "Your possessions are as follows:" << endl << endl;
                     playerC.printInventory();
-                    if(playerC.numArrows() != 0) {
-                        cout << "A quiver holding " << playerC.numArrows();
+                    if(playerC.getArrows() != 0) {
+                        cout << "A quiver holding " << playerC.getArrows();
                         cout << " arrows" << endl;
                     }
                 }
@@ -87,18 +114,108 @@ void menu(charSheet playerC) {
                 playerC.changeEquip();
                 break;
             case 4:
-                //save
+                saveGame(playerC, wState);
+                break;
+            case 5:
+                system("clear");
+                cout << "Would you like to save your progress before quitting?" << endl
+                     << "1. Yes, save my progress" << endl
+                     << "2. No, don't save my progress" << endl
+                     << "3. Return to the menu instead" << endl;
+                endChoice = makeChoice(3);
+                switch(endChoice) {
+                    case 1:
+                        saveGame(playerC, wState);
+                        quit = true;
+                        done = true;
+                        break;
+                    case 2:
+                        quit = true;
+                        done = true;
+                        break;
+                    default:
+                        break;
+                }
                 break;
             default:
                 done = true;
                 break;
         }
     }
+    return quit;
 }
 
-void press_enter()
-{
+void press_enter() {
     cin.ignore();
     cout << "Press Enter to Continue...";
     cin.get();
+}
+
+
+
+
+bool saveGame(charSheet playerC, WorldState wState) {
+    string saveDirName = SAVEDIR;
+    path saveLocation = saveDirName;
+    checkSaveDir(saveLocation);
+    printSaves(saveLocation); // CUT
+    bool confirmed = false;
+    bool cancel = false;
+    string saveName = "";
+    while(!confirmed) {
+        cout << "Enter the name for this saved memory" << endl << endl;
+        cin >> saveName;
+        int input = 0;
+        if (is_regular_file(saveDirName+saveName)) {
+            cout << saveName << " already exists. Overwrite?" << endl;
+            cout << "1. Yes" << endl;
+            cout << "2. No" << endl;
+            cout << "3. Cancel" << endl << endl;
+            input = makeChoice(3);
+            switch(input) {
+                case 1: //overwrite save
+                    confirmed = true;
+                    break;
+                case 3: //cancel saving process
+                    confirmed = true;
+                    cancel = true;
+                    break;
+                default: //ask user for save name again
+                    break;
+            }
+        } else { //file doesn't already exist with this name
+            confirmed = true;
+        }
+    }
+    if(!cancel) {
+        if(writeData(playerC, wState, saveName)) {
+            cout << "Successfully saved a memory of your progress" << endl;
+        } else {
+            cout << "Something went wrong, this memory is not saved" << endl;
+        }
+        press_enter();
+    } else {
+        cout << "Decided not to save a memory" << endl;
+        press_enter();
+    }
+    return true;
+}
+
+
+
+bool loadSave(charSheet &playerC, WorldState &wState) {
+    string saveDirName = SAVEDIR;
+    path saveLocation = saveDirName;
+    checkSaveDir(saveDirName);
+    void printSaves(path saveDir);
+    if(!loadCharacter(playerC)) {
+        //ERROR MESSAGE
+        return false;
+    }
+    if(!loadWorld(wState)) {
+        //ERROR MESSAGE
+        return false;
+    }
+    press_enter();
+    return true;
 }

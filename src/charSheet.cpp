@@ -155,7 +155,7 @@ int charSheet::getIntel() {
     return intellect;
 }
 
-int charSheet::possessions() {
+int charSheet::possessionNum() {
     return inventory.numOfItems();
 }
 
@@ -184,7 +184,7 @@ bool charSheet::removeItem(int toRemove) {
     }
 }
 
-int charSheet::numArrows() {
+int charSheet::getArrows() {
     return arrows;
 }
 
@@ -330,7 +330,7 @@ void charSheet::equipItem(int slot) {
         }
         cout << "You may equip:" << endl << endl;
         for(; it != inventory.list.end(); it++) {
-            if(it->eqSlot() == HOLD1 | it->eqSlot() == HOLD2) { //print all holdable items
+            if(it->eqSlot() == HOLD1 || it->eqSlot() == HOLD2) { //print all holdable items
                 cout << it->iName();
                 if(it->eqSlot() == HOLD1) {
                     cout << " in one hand" << endl;
@@ -345,7 +345,7 @@ void charSheet::equipItem(int slot) {
         char entry = '0';
         cout << "Select the item to equip (Enter Y/N to make a choice)" << endl;
         for(; it != inventory.list.end(); it++) {
-            if(it->eqSlot() == HOLD1 | it->eqSlot() == HOLD2) { //each holdable item
+            if(it->eqSlot() == HOLD1 || it->eqSlot() == HOLD2) { //each holdable item
                 cout << it->iName() << "?" << endl;
                 entry = yesNo();
                 if(toupper(entry) == 'Y') {
@@ -613,8 +613,7 @@ void charSheet::equipItem(int slot) {
     }
 }
 
-void makeCharacter(charSheet &playerC)
-{
+void makeCharacter(charSheet &playerC) {
    int entry = -1;
    bool confirmed = false;
    while (!confirmed) {
@@ -634,8 +633,7 @@ void makeCharacter(charSheet &playerC)
    startingItems(playerC);
 }
 
-void chooseStats(charSheet &playerC)
-{
+void chooseStats(charSheet &playerC) {
    system("clear");
    int entry = -1;
    cout << "Which do you wish to be your greatest strength?:" << endl;
@@ -681,14 +679,12 @@ void chooseStats(charSheet &playerC)
    playerC.healHP();
 }
 
-void resetE(int &number, bool &confirm)
-{
+void resetE(int &number, bool &confirm) {
    number = -1;
    confirm = false;
 }
 
-void printSheet(charSheet playerC)
-{
+void printSheet(charSheet playerC) {
     system("clear");
     cout << "Your name is " << playerC.getName() << endl;
     cout << endl;
@@ -728,8 +724,7 @@ void printSheet(charSheet playerC)
     cout << endl;
 }
 
-void startingItems(charSheet &playerC)
-{
+void startingItems(charSheet &playerC) {
     Item weap01(WEAP01);
     Item tool01(TOOL01);
     Item weap02(WEAP02);
@@ -772,3 +767,6 @@ void startingItems(charSheet &playerC)
     }
 }
 
+bool loadCharacter(charSheet &playerC) {
+    //LOAD STUFF
+}

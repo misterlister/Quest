@@ -3,7 +3,7 @@
 
 #include "../header/macros.h"
 #include "../header/charSheet.h"
-#include "../header/Locations.h"
+#include "../header/locations.h"
 
 
 class WorldState {
@@ -12,6 +12,8 @@ class WorldState {
 
     public:
 };
+
+bool loadWorld(WorldState &wState);
 
 
 #endif // QUEST_WORLDST_H

@@ -4,6 +4,9 @@
 
 
 #include "../header/macros.h"
-#include "../header/WorldState.h"
-#include "../header/Locations.h"
+#include "../header/worldState.h"
+#include "../header/locations.h"
 
+bool loadWorld(WorldState &wState) {
+    //LOAD WORLD
+}

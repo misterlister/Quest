@@ -8,9 +8,11 @@
 
 class Location {
     private:
-
+        int entrances;
     public:
-
+        Location();
+        ~Location();
+        bool enterLocation(int entrance);
 };
 
 

@@ -12,9 +12,9 @@ using std::vector;
 
 class Item {
     private:
+        string itemKey;
         string name;
         string description;
-        int key;
         int value;
         int damage;
         int armour;
@@ -24,9 +24,9 @@ class Item {
         Item(string nam, string desc, int iKey, int val, int dam, int arm, \
             int equip);
         ~Item() {}
+        string iKey();
         string iName();
         string iDesc();
-        int iKey();
         int iValue();
         int iDam();
         int iArm();

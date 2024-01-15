@@ -54,12 +54,13 @@ class charSheet {
         void setIntel(int intel);
         bool changeIntel(int modifier);
         int getIntel();
-        int possessions();
+        int possessionNum();
         void printInventory();
+        //void printItemCodes();
         bool inInventory(int key);
         void addItem(Item toAdd);
         bool removeItem(int toRemove);
-        int numArrows();
+        int getArrows();
         bool changeArrow(int modifier);
         int getCP();
         bool changeCP(int toAdd);
@@ -77,5 +78,7 @@ void resetE(int &number, bool &confirm);
 void printSheet(charSheet playerC);
 
 void startingItems(charSheet &playerC);
+
+bool loadCharacter(charSheet &playerC);
 
 #endif //QUEST_CHARSHEET_H

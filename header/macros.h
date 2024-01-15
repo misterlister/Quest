@@ -20,6 +20,9 @@
 #define FEET 5
 #define HANDS 6
 #define FINGER 7
+#define SAVEDIR "save/"
+#define SAVEREG "(^save/)"
+#define CLEAR system("clear") //MAC
 
 
 
